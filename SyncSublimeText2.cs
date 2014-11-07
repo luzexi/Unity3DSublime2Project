@@ -3,6 +3,10 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+// SyncSublimeText2.cs
+// Author: Lu Zexi
+// 2014-11-07
+
 
 // Create a Sublime Text 2 project from a Unity project
 // Includes folders and file types of your choosing
