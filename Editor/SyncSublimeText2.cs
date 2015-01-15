@@ -11,39 +11,63 @@ using UnityEngine;
 // Create a Sublime Text 2 project from a Unity project
 // Includes folders and file types of your choosing
 // Includes all assemblies for autocompletion in CompleteSharp package
-public class SyncSublimeText2 : Editor
+public class SyncSublimeText2 : EditorWindow
 {
-    // sublime folders
-    private static string[] sIncludeFolders = new[] {
-        "AI System",
-        "App/Editor",
-        "App/Scripts",
-        "AstarPathfindingProject",
-        "Best HTTP (Pro)",
-        "ex2D",
-        "Gem Shader",
-        "InputTouches",
-        "iTweenEditor",
-        "MsgPack",
-        "NGUI",
-        "PlayModePersist",
-        "Plugins",
-        "ReferenceViewer",
-        "XML-JSON Serialization",
-    };
+	private const string CONFIG_PATH = "Assets/SublimeConf";
 
-    // sublime 项目扩展名
-    private static string[] sIncludeExtensions = new[] {
-        "cs",
-        "js",
-        "txt",
-        "shader",
-        "json",
-        "mm",
-        "m",
-        // "cginc",
-        // "xml",
-    };
+	[MenuItem("Assets/SublimeConfig")]
+	public static void OpenConfig()
+	{
+		Init();
+		System.Diagnostics.Process.Start("open", CONFIG_PATH);
+	}
+
+	//init
+	private static void Init()
+	{
+		sIncludeFolders = new List<string> ();
+		sIncludeExtensions = new List<string> ();
+		if(!File.Exists(CONFIG_PATH))
+		{
+			FileStream fm = File.Create(CONFIG_PATH);
+			fm.Close();
+			string tmp_content = "*.cs\n*.js\n*.txt\n*.shader\n*.json\n*.mm\n*.m\n*.xml\n*.csv";
+			File.WriteAllText(CONFIG_PATH,tmp_content);
+			AssetDatabase.Refresh();
+		}
+		string[] tAllLines = File.ReadAllLines(CONFIG_PATH);
+
+		for (int i=0; i<tAllLines.Length; i++)
+		{
+			string str = tAllLines[i];
+
+			if(str.Length <= 0) continue;
+
+			str = str.Replace("\r","");
+			if(str.StartsWith("*."))
+			{
+				sIncludeExtensions.Add(str.Substring(2));
+			}
+			else
+			{
+				string tmp_path = Application.dataPath + "/" + str;
+				if(Directory.Exists(tmp_path))
+				{
+					sIncludeFolders.Add(str);
+				}
+				else
+				{
+					Debug.LogError("Your Sublime dir " + str + "is not exist!");
+					EditorUtility.DisplayDialog("Sublime Check" , "Your Sublime dir " + str + "is not exist!" , "OK");
+				}
+			}
+		}
+	}
+
+    // sublime folders
+	private static List<string> sIncludeFolders = null;
+    // sublime extend *.ext
+	private static List<string> sIncludeExtensions = null;
 
     private const string TEMPLATE   =
 @"{
@@ -73,6 +97,7 @@ __FILE_INCLUDE_PATTERNS__
     [MenuItem("Assets/Sync Sublime Text 2 Project")]
     private static void syncST2Project()
     {
+		Init();
         string text = TEMPLATE;
         text = text.Replace("__FOLDERS__", makeFoldersString("\t\t"));
         text = text.Replace("__COMPLETESHARP_ASSEMBLIES__", makeCompletesharpAssembliesString("\t\t\t"));
@@ -93,13 +118,13 @@ __FILE_INCLUDE_PATTERNS__
         string fileIncludePatterns = makeFileIncludePatternsString(indent + "\t");
 
         string str = "";
-        for (int i = 0, il = sIncludeFolders.Length; i < il; i++)
+        for (int i = 0, il = sIncludeFolders.Count; i < il; i++)
         {
             string folders = TEMPLATE_FOLDERS;
             folders = folders.Replace("__FILE_INCLUDE_PATTERNS__", fileIncludePatterns);
             folders = folders.Replace("__PATH__", "\"" + Application.dataPath + "/" + sIncludeFolders[i] + "/" + "\"");
 
-            if (i < sIncludeFolders.Length - 1)
+            if (i < sIncludeFolders.Count - 1)
             {
                 folders += ",\n";
             }
@@ -116,9 +141,9 @@ __FILE_INCLUDE_PATTERNS__
     private static string makeFileIncludePatternsString(string indent = "")
     {
         string str = "";
-        for (int i = 0, il = sIncludeExtensions.Length; i < il; i++) {
+        for (int i = 0, il = sIncludeExtensions.Count; i < il; i++) {
             str += (indent + "\t") + string.Format("\"*.{0}\"", sIncludeExtensions[i]);
-            if (i < sIncludeExtensions.Length - 1) {
+            if (i < sIncludeExtensions.Count - 1) {
                 str += ",\n";
             }
         }
