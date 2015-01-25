@@ -16,6 +16,7 @@ Sublime workspace in Unity3D
 * Click Assets->Sync Sublime Text 2 Project or click right mouse button in project tab ->Sync Sublime Text 2 Project , it will generate the sublime-workspace in the unity3d project folder.
 ![github](https://github.com/luzexi/Unity3DSublime2Project/blob/master/img2.png "img2")
 * Now you can start sublime2 and open project for sublime-workspace
-
-
+![github](https://github.com/luzexi/Unity3DSublime2Project/blob/master/img4.png "img4")
+![github](https://github.com/luzexi/Unity3DSublime2Project/blob/master/img5.png "img5")
+![github](https://github.com/luzexi/Unity3DSublime2Project/blob/master/img6.png "img6")
 
